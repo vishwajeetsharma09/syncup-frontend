@@ -1,40 +1,44 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
-export default function ThemeToggle() {
+function ThemeToggleComponent() {
   const { theme, setTheme } = useTheme();
 
-  const [mounted, setMounted] = useState(false);
+  return (
+    <button
+      onClick={() =>
+        setTheme(theme === "dark" ? "light" : "dark")
+      }
+      className="
+        border
+        border-neutral-700
+        dark:border-neutral-600
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+        p-2
+        rounded-xl
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return <div className="w-10 h-10" />;
-  }
+        hover:scale-105
+        transition
 
-//   return (
-//     <button
-//       onClick={() =>
-//         setTheme(theme === "dark" ? "light" : "dark")
-//       }
-//       className="
-//         border
-//         border-white-100
-//         p-2
-//         rounded-xl
-//         hover:scale-105
-//         transition
-//       "
-//     >
-//       {theme === "dark" ? (
-//         <Sun size={18} />
-//       ) : (
-//         <Moon size={18} />
-//       )}
-//     </button>
-//   );
+        text-black
+        dark:text-white
+      "
+    >
+      {theme === "dark" ? (
+        <Sun size={18} />
+      ) : (
+        <Moon size={18} />
+      )}
+    </button>
+  );
 }
+
+const ThemeToggle = dynamic(
+  () => Promise.resolve(ThemeToggleComponent),
+  {
+    ssr: false,
+  }
+);
+
+export default ThemeToggle;
