@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 // });
 
 const socket = io(
-    "https://syncup-backend-ten.vercel.app",
+    "https://syncup-backend-4fxf.onrender.com/",
     {
       transports: ["websocket", "polling"],
       autoConnect: true,
