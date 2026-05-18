@@ -8,53 +8,55 @@ export default function Home() {
   const [feeds, setFeeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [connected, setConnected] = useState(false);
 
-  const fetchFeeds = async () => {
-    try {
-      const { data } = await api.get("/feed");
-
-      setFeeds(data);
-    } catch (err) {
-      setError("Failed to load feeds");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Initialize from socket state directly
+  const [connected, setConnected] = useState(
+    socket.connected
+  );
 
   useEffect(() => {
-    fetchFeeds();
-  
-    // Check initial state
-    setConnected(socket.connected);
-  
+    async function loadFeeds() {
+      try {
+        const { data } = await api.get("/feed");
+
+        setFeeds(data);
+      } catch (err) {
+        setError("Failed to load feeds");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadFeeds();
+
     const handleConnect = () => {
       setConnected(true);
     };
-  
+
     const handleDisconnect = () => {
       setConnected(false);
     };
-  
+
     const handleNewFeed = (newFeed) => {
       setFeeds((prev) => [newFeed, ...prev]);
     };
-  
+
     socket.on("connect", handleConnect);
-  
+
     socket.on("disconnect", handleDisconnect);
-  
+
     socket.on("newFeed", handleNewFeed);
-  
+
     return () => {
       socket.off("connect", handleConnect);
-  
+
       socket.off("disconnect", handleDisconnect);
-  
+
       socket.off("newFeed", handleNewFeed);
     };
   }, []);
 
+  // Loading UI
   if (loading) {
     return (
       <div
@@ -82,6 +84,7 @@ export default function Home() {
     );
   }
 
+  // Error UI
   if (error) {
     return (
       <div
@@ -177,8 +180,14 @@ export default function Home() {
         >
           <div
             className={`
-              h-2 w-2 rounded-full
-              ${connected ? "bg-green-500" : "bg-red-500"}
+              h-2
+              w-2
+              rounded-full
+              ${
+                connected
+                  ? "bg-green-500"
+                  : "bg-red-500"
+              }
             `}
           />
 
@@ -191,7 +200,7 @@ export default function Home() {
           >
             {connected
               ? "Realtime Connected"
-              : "Disconnected"}
+              : "Reconnecting..."}
           </span>
         </div>
 
